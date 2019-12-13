@@ -41,7 +41,7 @@ function M.inbound_INVITE(msg)
   context.anonymous = true
 
   -- The following Headers will be checked and replaced
-  local headers = {"From", "Remote-Party-ID",
+  local headers = {"From", "Remote-Party-ID", "Contact", 
     "P-Preferred-Identity", "P-Asserted-Identity"}
 
   -- One by one, check each header and perform a replacement
