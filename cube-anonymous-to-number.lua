@@ -15,11 +15,17 @@ M = {}
 -- It all starts with receiving a call
 function M.inbound_INVITE(msg)
 
-  -- If the From header has digits in its value, then this aint our guy
-  -- From: "Anthony Holloway" <sip:+16125551212@1.1.1.1>;tag=ABC
-  -- From: "Anonymous" <sip:anonymous@1.1.1.1>;tag=ABC
+  -- The following caller IDs will trigger our replacement
+  local anonymous   = "[Aa][Nn][Oo][Nn][Yy][Mm][Oo][Uu][Ss]"
+  local restricted  = "[Rr][Ee][Ss][Tt][Rr][Ii][Cc][Tt][Ee][Dd]"
+  local unavailable = "[Uu][Nn][Aa][Vv][Aa][Ii][Ll][Aa][Bb][Ll][Ee]"
+
+  -- The From header needs to match one of the above caller IDs, else return
   local from_header = msg:getHeader("From")
-  if not from_header or string.find(from_header, "%d@") then return end
+  if not from_header
+    or not from_header:find(anonymous)
+    or not from_header:find(restricted)
+    or not from_header:find(unavailable) then return end
 
   -- We'll use the dialog context to flag calls we've modified, store
   -- information about the call, and to restore original values when needed
