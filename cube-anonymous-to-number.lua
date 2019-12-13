@@ -15,6 +15,12 @@ M = {}
 -- It all starts with receiving a call
 function M.inbound_INVITE(msg)
 
+  -- If the From header has digits in its value, then this aint our guy
+  -- From: "Anthony Holloway" <sip:+16125551212@1.1.1.1>;tag=ABC
+  -- From: "Anonymous" <sip:anonymous@1.1.1.1>;tag=ABC
+  local from_header = msg:getHeader("From")
+  if not from_header or string.find(from_header, "%d@") then return end
+
   -- We'll use the dialog context to flag calls we've modified, store
   -- information about the call, and to restore original values when needed
   local context = msg:getContext()
