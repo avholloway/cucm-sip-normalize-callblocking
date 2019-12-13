@@ -17,6 +17,7 @@ trace.enable()
 
 -- It all starts with receiving a call
 function M.inbound_INVITE(msg)
+  trace.format("CALL_BLOCKING: Handler: inbound_INVITE")
 
   -- The following caller IDs will trigger our replacement
   local anonymous   = "[Aa][Nn][Oo][Nn][Yy][Mm][Oo][Uu][Ss]"
@@ -41,7 +42,7 @@ function M.inbound_INVITE(msg)
   context.anonymous = true
 
   -- The following Headers will be checked and replaced
-  local headers = {"From", "Remote-Party-ID", "Contact", 
+  local headers = {"From", "Remote-Party-ID", "Contact",
     "P-Preferred-Identity", "P-Asserted-Identity"}
 
   -- One by one, check each header and perform a replacement
