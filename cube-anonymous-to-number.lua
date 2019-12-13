@@ -20,6 +20,9 @@ function M.inbound_INVITE(msg)
   local restricted  = "[Rr][Ee][Ss][Tt][Rr][Ii][Cc][Tt][Ee][Dd]"
   local unavailable = "[Uu][Nn][Aa][Vv][Aa][Ii][Ll][Aa][Bb][Ll][Ee]"
 
+  -- And we'll replace the LHS with the following numeric pattern
+  local replacement = "1111111111"
+
   -- The From header needs to match one of the above caller IDs, else return
   local from_header = msg:getHeader("From")
   if not from_header
@@ -31,6 +34,18 @@ function M.inbound_INVITE(msg)
   -- information about the call, and to restore original values when needed
   local context = msg:getContext()
   if not context then return end
+  context.anonymous = true
+
+  -- The following Headers will be checked and replaced
+  local headers = {"From", "Remote-Party-ID",
+    "P-Preferred-Identity", "P-Asserted-Identity"}
+
+  -- One by one, check each header and perform a replacement
+  for _, header in pairs(headers) do
+    local value = msg:getHeader(header)
+    if not value then break end
+    msg:modifyHeader(header, header:gsub(":.+@", ":"..replacement.."@"))
+  end
 
 end
 
