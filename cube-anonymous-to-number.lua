@@ -11,4 +11,15 @@
 --]]
 
 M = {}
+
+-- It all starts with receiving a call
+function M.inbound_INVITE(msg)
+
+  -- We'll use the dialog context to flag calls we've modified, store
+  -- information about the call, and to restore original values when needed
+  local context = msg:getContext()
+  if not context then return end
+
+end
+
 return M
