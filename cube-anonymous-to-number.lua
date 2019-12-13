@@ -30,18 +30,11 @@ function M.inbound_INVITE(msg)
   if not context then return end
   trace.format("CALL_BLOCKING: Initialized Dialog Context")
 
-  -- The following caller ID values will trigger our replacement
-  local caller_ids = {"anonymous", "restricted", "unavailable"}
+  -- The following caller ID values will trigger a replacement
+  local caller_ids = no_case_t({"anonymous", "restricted", "unavailable"})
 
   -- Does our From header match one of our caller ID values?
-  local found = false
-  for _, caller_id in pairs(caller_ids) do
-    if from_header:find(":"..caller_id.."@") then
-      found = true
-      break
-    end
-  end
-  if not found then return end
+  if not find_one(from_header, caller_ids) then return end
 
   -- And we'll replace the LHS with the following numeric pattern
   local replacement = "1111111111"
@@ -74,6 +67,15 @@ function M.inbound_INVITE(msg)
     end
   end
 
+end
+
+-- Takes a string and a table of patterns and returns true or false if one
+-- of the patterns matches the string
+function find_one(s, t)
+  for _, v in pairs(t) do
+    if s:find(v) then return true end
+  end
+  return false
 end
 
 -- Takes a string like "the" and returns "[Tt][Hh][Ee]"
