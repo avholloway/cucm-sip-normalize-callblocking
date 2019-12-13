@@ -32,6 +32,7 @@ function M.inbound_INVITE(msg)
     or not from_header:find(anonymous)
     or not from_header:find(restricted)
     or not from_header:find(unavailable) then return end
+  trace.format("CALL_BLOCKING: From: "..from_header)
 
   -- We'll use the dialog context to flag calls we've modified, store
   -- information about the call, and to restore original values when needed
@@ -47,7 +48,10 @@ function M.inbound_INVITE(msg)
   for _, header in pairs(headers) do
     local value = msg:getHeader(header)
     if not value then break end
-    msg:modifyHeader(header, header:gsub(":.+@", ":"..replacement.."@"))
+    trace.format("CALL_BLOCKING: PRE: "..header..": "..value)
+    value = value:gsub(":.+@", ":"..replacement.."@")
+    msg:modifyHeader(header, value)
+    trace.format("CALL_BLOCKING: POST: "..header..": "..value)
   end
 
 end
