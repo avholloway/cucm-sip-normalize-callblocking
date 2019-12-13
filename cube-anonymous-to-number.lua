@@ -29,10 +29,11 @@ function M.inbound_INVITE(msg)
 
   -- The From header needs to match one of the above caller IDs, else return
   local from_header = msg:getHeader("From")
-  if not from_header
-    or not from_header:find(anonymous)
-    or not from_header:find(restricted)
-    or not from_header:find(unavailable) then return end
+  if not from_header or (
+     not from_header:find(anonymous) and
+     not from_header:find(restricted) and
+     not from_header:find(unavailable)
+  ) then return end
   trace.format("CALL_BLOCKING: From: "..from_header)
 
   -- We'll use the dialog context to flag calls we've modified, store
