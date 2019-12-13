@@ -19,29 +19,33 @@ trace.enable()
 function M.inbound_INVITE(msg)
   trace.format("CALL_BLOCKING: Handler: inbound_INVITE")
 
-  -- The following caller IDs will trigger our replacement
-  local caller_id = {
-    anonymous   = "[Aa][Nn][Oo][Nn][Yy][Mm][Oo][Uu][Ss]",
-    restricted  = "[Rr][Ee][Ss][Tt][Rr][Ii][Cc][Tt][Ee][Dd]",
-    unavailable = "[Uu][Nn][Aa][Vv][Aa][Ii][Ll][Aa][Bb][Ll][Ee]"
-  }
-
-  -- And we'll replace the LHS with the following numeric pattern
-  local replacement = "1111111111"
-
-  -- The From header needs to match one of the above caller IDs, else return
+  -- The From header needs to be present and cannot contain a digit in LHS
   local from_header = msg:getHeader("From")
-  if not from_header or (
-     not from_header:find(anonymous) and
-     not from_header:find(restricted) and
-     not from_header:find(unavailable)
-  ) then return end
+  if not from_header or from_header:find("%d@") then return end
   trace.format("CALL_BLOCKING: From: "..from_header)
 
   -- We'll use the dialog context to flag calls we've modified, store
   -- information about the call, and to restore original values when needed
   local context = msg:getContext()
   if not context then return end
+  trace.format("CALL_BLOCKING: Initialized Dialog Context")
+
+  -- The following caller ID values will trigger our replacement
+  local caller_ids = {"anonymous", "restricted", "unavailable"}
+
+  -- Does our From header match one of our caller ID values?
+  local found = false
+  for _, caller_id in pairs(caller_ids) do
+    if from_header:find(":"..caller_id.."@") then
+      found = true
+      break
+    end
+  end
+  if not found then return end
+
+  -- And we'll replace the LHS with the following numeric pattern
+  local replacement = "1111111111"
+
   context.anonymous = true
 
   -- The following Headers will be checked and replaced
@@ -70,6 +74,23 @@ function M.inbound_INVITE(msg)
     end
   end
 
+end
+
+-- Takes a string like "the" and returns "[Tt][Hh][Ee]"
+function no_case(s)
+  s = string.gsub(s, "%a", function (c)
+    return string.format("[%s%s]", string.upper(c), string.lower(c))
+  end)
+  return s
+end
+
+-- Takes a table like {"the", "and"} and returns {"[Tt][Hh][Ee]", "[Aa][Nn][Dd]"}
+function no_case_t(t)
+  local n = {}
+  for k, v in pairs(t) do
+    n[k] = no_case(v)
+  end
+  return n
 end
 
 return M
