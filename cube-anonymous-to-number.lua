@@ -20,9 +20,11 @@ function M.inbound_INVITE(msg)
   trace.format("CALL_BLOCKING: Handler: inbound_INVITE")
 
   -- The following caller IDs will trigger our replacement
-  local anonymous   = "[Aa][Nn][Oo][Nn][Yy][Mm][Oo][Uu][Ss]"
-  local restricted  = "[Rr][Ee][Ss][Tt][Rr][Ii][Cc][Tt][Ee][Dd]"
-  local unavailable = "[Uu][Nn][Aa][Vv][Aa][Ii][Ll][Aa][Bb][Ll][Ee]"
+  local caller_id = {
+    anonymous   = "[Aa][Nn][Oo][Nn][Yy][Mm][Oo][Uu][Ss]",
+    restricted  = "[Rr][Ee][Ss][Tt][Rr][Ii][Cc][Tt][Ee][Dd]",
+    unavailable = "[Uu][Nn][Aa][Vv][Aa][Ii][Ll][Aa][Bb][Ll][Ee]"
+  }
 
   -- And we'll replace the LHS with the following numeric pattern
   local replacement = "1111111111"
@@ -46,14 +48,26 @@ function M.inbound_INVITE(msg)
   local headers = {"From", "Remote-Party-ID", "Contact",
     "P-Preferred-Identity", "P-Asserted-Identity"}
 
-  -- One by one, check each header and perform a replacement
+  -- Check each header in our list of headers to check
   for _, header in pairs(headers) do
     local value = msg:getHeader(header)
     if not value then break end
+
     trace.format("CALL_BLOCKING: PRE: "..header..": "..value)
-    value = value:gsub(":.+@", ":"..replacement.."@")
-    msg:modifyHeader(header, value)
-    trace.format("CALL_BLOCKING: POST: "..header..": "..value)
+
+    -- If the header contains one of our caller ID keywords
+    if value:find(anonymous)
+      or value:find(restricted)
+      or value:find(unavailable) then
+
+        -- Store the original value for later
+        context[header] = value
+
+        -- Perform the swap to the new value
+        value = value:gsub(":.+@", ":"..replacement.."@")
+        msg:modifyHeader(header, value)
+        trace.format("CALL_BLOCKING: POST: "..header..": "..value)
+    end
   end
 
 end
