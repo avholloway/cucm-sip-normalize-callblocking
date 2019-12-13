@@ -12,6 +12,9 @@
 
 M = {}
 
+-- Enable tracing if you are troubleshooting
+trace.enable()
+
 -- It all starts with receiving a call
 function M.inbound_INVITE(msg)
 
