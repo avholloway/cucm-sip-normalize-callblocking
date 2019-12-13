@@ -31,7 +31,7 @@ function M.inbound_INVITE(msg)
   trace.format("CALL_BLOCKING: Initialized Dialog Context")
 
   -- The following caller ID values will trigger a replacement
-  local caller_ids = no_case_t({"anonymous", "restricted", "unavailable"})
+  local caller_ids = {"anonymous", "restricted", "unavailable"}
 
   -- Does our From header match one of our caller ID values?
   if not find_one(from_header, caller_ids) then return end
@@ -71,28 +71,11 @@ end
 
 -- Takes a string and a table of patterns and returns true or false if one
 -- of the patterns matches the string
-function find_one(s, t)
+local function find_one(s, t)
   for _, v in pairs(t) do
-    if s:find(v) then return true end
+    if s:lower():find(":"..v.."@") then return true end
   end
   return false
-end
-
--- Takes a string like "the" and returns "[Tt][Hh][Ee]"
-function no_case(s)
-  s = string.gsub(s, "%a", function (c)
-    return string.format("[%s%s]", string.upper(c), string.lower(c))
-  end)
-  return s
-end
-
--- Takes a table like {"the", "and"} and returns {"[Tt][Hh][Ee]", "[Aa][Nn][Dd]"}
-function no_case_t(t)
-  local n = {}
-  for k, v in pairs(t) do
-    n[k] = no_case(v)
-  end
-  return n
 end
 
 return M
