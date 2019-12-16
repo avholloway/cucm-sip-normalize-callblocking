@@ -5,9 +5,18 @@
 
   Therefore, we are going to find and replace these anonymous caller IDs with
   a known numeric caller ID, for the purposes of matching our ! XLATE to permit
-  the call through our call blocking construct.
+  the call through our call blocking construct.  We only do this in inbound
+  INVITEs, since that is how all calls originate to us, and we'll block it right
+  then and there.
+
+  We then need to make sure that subsequent responses back to the ITSP show the
+  original caller ID information, so we'll revert our change in messages back.
 
   E.g.,
+  On the way in to us...
+  sip:anonymous@1.1.1.1 becomes sip:1111111111@1.1.1.1
+
+  On the way back to ITSP...
   sip:anonymous@1.1.1.1 becomes sip:1111111111@1.1.1.1
 
   Anthony Holloway (avholloway@gmail.com)
