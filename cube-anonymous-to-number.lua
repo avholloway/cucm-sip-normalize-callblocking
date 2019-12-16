@@ -84,6 +84,8 @@ function M.inbound_INVITE(msg)
       value = value:gsub(":.+@", ":"..replacement.."@")
       msg:modifyHeader(header, value)
       trace.format("CALL_BLOCKING: Post-Change: "..header..": "..value)
+    else
+      trace.format("CALL_BLOCKING: No-Change: "..header..": "..value)
     end
   end
 
