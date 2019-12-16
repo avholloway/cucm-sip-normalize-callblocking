@@ -132,8 +132,8 @@ end
 -- Takes a string and a table of patterns and returns true or false if one
 -- of the patterns matches the string
 local function find_one(s, t)
-  for _, v in pairs(t) do
-    if s:lower():find(v) then return true end
+  for _, p in pairs(t) do
+    if s:lower():find(p) then return true end
   end
   return false
 end
