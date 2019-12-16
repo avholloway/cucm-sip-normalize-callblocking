@@ -68,7 +68,10 @@ function M.inbound_INVITE(msg)
 
     -- Try to grab this header, if its not present, just move to the next header
     local value = msg:getHeader(header)
-    if not value then break end
+    if not value then
+      trace.format("CALL_BLOCKING: No-Change: "..header..": "..value)
+      break
+    end
 
     -- If this header contains one of our caller ID keywords
     if find_one(value, caller_ids) then
