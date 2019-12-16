@@ -22,19 +22,16 @@ trace.enable()
 -- It all starts with receiving a call
 function M.inbound_INVITE(msg)
   trace.format("CALL_BLOCKING: Handler: inbound_INVITE")
+  trace.format("CALL_BLOCKING: Inspecting From: "..from_header)
 
   -- The From header needs to be present and cannot contain a digit in LHS
   -- This allows us to quit our app as fast as possible, since this will be
   -- executed for every call, but the percentage of matches will be very low
   local from_header = msg:getHeader("From")
-  if not from_header or from_header:find("%d@") then return end
-  trace.format("CALL_BLOCKING: From: "..from_header)
-
-  -- We'll use the dialog context to flag calls we've modified, store
-  -- information about the call, and to restore original values when needed
-  local context = msg:getContext()
-  if not context then return end
-  trace.format("CALL_BLOCKING: Initialized Dialog Context")
+  if not from_header or from_header:find("%d@") then
+    trace.format("CALL_BLOCKING: Exiting due to numeric value in LHS")
+    return
+  end
 
   -- The following caller ID values will trigger a replacement
   -- We match the LHS of the SIP URI, and not the Calling Name in quotes
@@ -42,6 +39,14 @@ function M.inbound_INVITE(msg)
 
   -- Does our From header match one of our caller ID values?
   if not find_one(from_header, caller_ids) then return end
+
+  -- We'll use the dialog context to flag calls we've modified, store
+  -- information about the call, and to restore original values when needed
+  local context = msg:getContext()
+  if not context then
+    trace.format("CALL_BLOCKING: Exiting due to missing context for dialog")
+    return
+  end
 
   -- And we'll replace the LHS with the following numeric pattern
   local replacement = "1111111111"
@@ -55,7 +60,7 @@ function M.inbound_INVITE(msg)
   local headers = {"From", "Remote-Party-ID", "Contact",
     "P-Preferred-Identity", "P-Asserted-Identity"}
 
-  -- Check each header in our list of headers to check
+  -- Check each header in our list of headers
   for _, header in pairs(headers) do
     local value = msg:getHeader(header)
     if not value then break end
