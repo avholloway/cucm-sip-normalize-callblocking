@@ -91,6 +91,11 @@ function M.inbound_INVITE(msg)
 
 end
 
+-- Skip these messages immediately
+function M.inbound_OPTIONS(msg)
+  return
+end
+
 function M.inbound_ANY(msg)
 end
 
