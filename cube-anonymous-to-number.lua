@@ -19,26 +19,19 @@ M = {}
 -- Enable tracing if you are troubleshooting
 trace.enable()
 
--- Skip these messages immediately
-function M.inbound_OPTIONS(msg)
-  return
-end
-
 function M.inbound_INVITE(msg)
   -- The fix for blocking calls by calling number and SIP anonymous caller IDs
   anon_to_number()
 end
 
-function M.inbound_ANY(msg)
-end
-
 function M.outbound_ANY(msg)
-end
-
-function M.inbound_ANY_ANY(msg)
+  -- The reversion to our fix for blocking SIP anonymous caller caller_ids
+  number_to_anon()
 end
 
 function M.outbound_ANY_ANY(msg)
+  -- The reversion to our fix for blocking SIP anonymous caller caller_ids
+  number_to_anon()
 end
 
 local function anon_to_number(msg)
@@ -58,7 +51,7 @@ local function anon_to_number(msg)
   local caller_ids = {"anonymous", "restricted", "unavailable"}
 
   -- Does our From header match one of our caller ID values?
-  if not find_one(from_header, caller_ids) then
+  if not find_one(":"..from_header.."@", caller_ids) then
     trace.format("CALL_BLOCKING: ANON2NUM: Exiting due to no match with our caller IDs")
     return
   end
@@ -97,7 +90,7 @@ local function anon_to_number(msg)
     end
 
     -- If this header contains one of our caller ID keywords
-    if find_one(value, caller_ids) then
+    if find_one(":"..value.."@", caller_ids) then
       trace.format("CALL_BLOCKING: ANON2NUM: Pre-Change: "..header..": "..value)
 
       -- Store the original value for later
@@ -140,7 +133,7 @@ end
 -- of the patterns matches the string
 local function find_one(s, t)
   for _, v in pairs(t) do
-    if s:lower():find(":"..v.."@") then return true end
+    if s:lower():find(v) then return true end
   end
   return false
 end
