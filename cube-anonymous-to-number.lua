@@ -51,13 +51,13 @@ function M.inbound_INVITE(msg)
     return
   end
 
-  -- And we'll replace the LHS with the following numeric pattern
-  local replacement = "1111111111"
-
   -- Our flag in the context of this dialog so we can check further messages
   -- within this dialog and know it's our special type of call versus some
   -- other random call.
   context.anonymous = true
+
+  -- And we'll store the replacement to the LHS
+  context.replacement = "1111111111"
 
   -- The following Headers will be checked and replaced
   local headers = {"From", "Remote-Party-ID", "Contact",
