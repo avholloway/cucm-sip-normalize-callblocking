@@ -19,13 +19,13 @@ M = {}
 -- Enable tracing if you are troubleshooting
 trace.enable()
 
--- It all starts with receiving a call
-function M.inbound_INVITE(msg)
-end
-
 -- Skip these messages immediately
 function M.inbound_OPTIONS(msg)
   return
+end
+
+function M.inbound_INVITE(msg)
+  anon_to_number()
 end
 
 function M.inbound_ANY(msg)
