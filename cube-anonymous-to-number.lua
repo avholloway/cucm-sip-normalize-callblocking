@@ -42,15 +42,14 @@ function M.outbound_ANY_ANY(msg)
 end
 
 local function anon_to_number(msg)
-  trace.format("CALL_BLOCKING: Handler: inbound_INVITE")
-  trace.format("CALL_BLOCKING: Inspecting From: "..from_header)
+  trace.format("CALL_BLOCKING: ANON2NUM: Inspecting From: "..from_header)
 
   -- The From header needs to be present and cannot contain a digit in LHS
   -- This allows us to quit our app as fast as possible, since this will be
   -- executed for every call, but the percentage of matches will be very low
   local from_header = msg:getHeader("From")
   if not from_header or from_header:find("%d@") then
-    trace.format("CALL_BLOCKING: Exiting due to numeric value in LHS")
+    trace.format("CALL_BLOCKING: ANON2NUM: Exiting due to numeric value in LHS")
     return
   end
 
@@ -60,7 +59,7 @@ local function anon_to_number(msg)
 
   -- Does our From header match one of our caller ID values?
   if not find_one(from_header, caller_ids) then
-    trace.format("CALL_BLOCKING: Exiting due to no match with our caller IDs")
+    trace.format("CALL_BLOCKING: ANON2NUM: Exiting due to no match with our caller IDs")
     return
   end
 
@@ -68,7 +67,7 @@ local function anon_to_number(msg)
   -- information about the call, and to restore original values when needed
   local context = msg:getContext()
   if not context then
-    trace.format("CALL_BLOCKING: Exiting due to missing context for dialog")
+    trace.format("CALL_BLOCKING: ANON2NUM: Exiting due to missing context for dialog")
     return
   end
 
@@ -93,13 +92,13 @@ local function anon_to_number(msg)
     -- Try to grab this header, if its not present, just move to the next header
     local value = msg:getHeader(header)
     if not value then
-      trace.format("CALL_BLOCKING: Not Found: "..header..":")
+      trace.format("CALL_BLOCKING: ANON2NUM: Not Found: "..header..":")
       break
     end
 
     -- If this header contains one of our caller ID keywords
     if find_one(value, caller_ids) then
-      trace.format("CALL_BLOCKING: Pre-Change: "..header..": "..value)
+      trace.format("CALL_BLOCKING: ANON2NUM: Pre-Change: "..header..": "..value)
 
       -- Store the original value for later
       context.headers[header] = value
@@ -107,9 +106,9 @@ local function anon_to_number(msg)
       -- Perform the swap to the new value
       value = value:gsub(":.+@", ":"..replacement.."@")
       msg:modifyHeader(header, value)
-      trace.format("CALL_BLOCKING: Post-Change: "..header..": "..value)
+      trace.format("CALL_BLOCKING: ANON2NUM: Post-Change: "..header..": "..value)
     else
-      trace.format("CALL_BLOCKING: No Change: "..header..": "..value)
+      trace.format("CALL_BLOCKING: ANON2NUM: No Change: "..header..": "..value)
     end
   end
 
@@ -119,19 +118,19 @@ local function number_to_anon(msg)
   -- We'll use the dialog context to read a flag for calls we've modified
   local context = msg:getContext()
   if not context then
-    trace.format("CALL_BLOCKING: Exiting due to missing context for dialog")
+    trace.format("CALL_BLOCKING: NUM2ANON: Exiting due to missing context for dialog")
     return
   end
 
   -- If that flag is not present, just end
   if not context.anonymous then
-    trace.format("CALL_BLOCKING: Exiting due to context.anonymous missing")
+    trace.format("CALL_BLOCKING: NUM2ANON: Exiting due to context.anonymous missing")
     return
   end
 
   -- We'll iterate over the headers we modified, reverting them back
   for header, value in context.headers do
-    trace.format("CALL_BLOCKING: "..header..": Reverting to: "..value)
+    trace.format("CALL_BLOCKING: NUM2ANON: "..header..": Reverting to: "..value)
     msg:modifyHeader(header, value)
   end
 
