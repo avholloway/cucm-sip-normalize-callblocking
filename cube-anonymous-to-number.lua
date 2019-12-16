@@ -38,7 +38,10 @@ function M.inbound_INVITE(msg)
   local caller_ids = {"anonymous", "restricted", "unavailable"}
 
   -- Does our From header match one of our caller ID values?
-  if not find_one(from_header, caller_ids) then return end
+  if not find_one(from_header, caller_ids) then
+    trace.format("CALL_BLOCKING: Exiting due to no match against our caller IDs")
+    return
+  end
 
   -- We'll use the dialog context to flag calls we've modified, store
   -- information about the call, and to restore original values when needed
