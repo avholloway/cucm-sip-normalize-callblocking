@@ -39,7 +39,7 @@ function M.inbound_INVITE(msg)
 
   -- Does our From header match one of our caller ID values?
   if not find_one(from_header, caller_ids) then
-    trace.format("CALL_BLOCKING: Exiting due to no match against our caller IDs")
+    trace.format("CALL_BLOCKING: Exiting due to no match with our caller IDs")
     return
   end
 
@@ -63,17 +63,16 @@ function M.inbound_INVITE(msg)
   local headers = {"From", "Remote-Party-ID", "Contact",
     "P-Preferred-Identity", "P-Asserted-Identity"}
 
-  -- Check each header in our list of headers
+  -- Check each header in our list one-by-one, to perform the fix on it
   for _, header in pairs(headers) do
+
+    -- Try to grab this header, if its not present, just move to the next header
     local value = msg:getHeader(header)
     if not value then break end
+    trace.format("CALL_BLOCKING: Pre-Change: "..header..": "..value)
 
-    trace.format("CALL_BLOCKING: PRE: "..header..": "..value)
-
-    -- If the header contains one of our caller ID keywords
-    if value:find(anonymous)
-      or value:find(restricted)
-      or value:find(unavailable) then
+    -- If this header contains one of our caller ID keywords
+    if find_one(value, caller_ids) then
 
         -- Store the original value for later
         context[header] = value
@@ -81,7 +80,7 @@ function M.inbound_INVITE(msg)
         -- Perform the swap to the new value
         value = value:gsub(":.+@", ":"..replacement.."@")
         msg:modifyHeader(header, value)
-        trace.format("CALL_BLOCKING: POST: "..header..": "..value)
+        trace.format("CALL_BLOCKING: Post-Change: "..header..": "..value)
     end
   end
 
