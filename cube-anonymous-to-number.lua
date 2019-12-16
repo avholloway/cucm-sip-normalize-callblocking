@@ -116,15 +116,23 @@ local function anon_to_number(msg)
 end
 
 local function number_to_anon(msg)
+  -- We'll use the dialog context to read a flag for calls we've modified
   local context = msg:getContext()
   if not context then
     trace.format("CALL_BLOCKING: Exiting due to missing context for dialog")
     return
   end
 
+  -- If that flag is not present, just end
   if not context.anonymous then
     trace.format("CALL_BLOCKING: Exiting due to context.anonymous missing")
     return
+  end
+
+  -- We'll iterate over the headers we modified, reverting them back
+  for header, value in context.headers do
+    trace.format("CALL_BLOCKING: "..header..": Reverting to: "..value)
+    msg:modifyHeader(header, value)
   end
 
 end
