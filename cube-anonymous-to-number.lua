@@ -21,6 +21,26 @@ trace.enable()
 
 -- It all starts with receiving a call
 function M.inbound_INVITE(msg)
+end
+
+-- Skip these messages immediately
+function M.inbound_OPTIONS(msg)
+  return
+end
+
+function M.inbound_ANY(msg)
+end
+
+function M.outbound_ANY(msg)
+end
+
+function M.inbound_ANY_ANY(msg)
+end
+
+function M.outbound_ANY_ANY(msg)
+end
+
+local function anon_to_number(msg)
   trace.format("CALL_BLOCKING: Handler: inbound_INVITE")
   trace.format("CALL_BLOCKING: Inspecting From: "..from_header)
 
@@ -89,23 +109,6 @@ function M.inbound_INVITE(msg)
     end
   end
 
-end
-
--- Skip these messages immediately
-function M.inbound_OPTIONS(msg)
-  return
-end
-
-function M.inbound_ANY(msg)
-end
-
-function M.outbound_ANY(msg)
-end
-
-function M.inbound_ANY_ANY(msg)
-end
-
-function M.outbound_ANY_ANY(msg)
 end
 
 local function number_to_anon(msg)
