@@ -7,6 +7,9 @@
   a known numeric caller ID, for the purposes of matching our ! XLATE to permit
   the call through our call blocking construct.
 
+  E.g.,
+  sip:anonymous@1.1.1.1 becomes sip:1111111111@1.1.1.1
+
   Anthony Holloway (avholloway@gmail.com)
 --]]
 
@@ -20,6 +23,8 @@ function M.inbound_INVITE(msg)
   trace.format("CALL_BLOCKING: Handler: inbound_INVITE")
 
   -- The From header needs to be present and cannot contain a digit in LHS
+  -- This allows us to quit our app as fast as possible, since this will be
+  -- executed for every call, but the percentage of matches will be very low
   local from_header = msg:getHeader("From")
   if not from_header or from_header:find("%d@") then return end
   trace.format("CALL_BLOCKING: From: "..from_header)
