@@ -31,6 +31,7 @@ function M.inbound_INVITE(msg)
   trace.format("CALL_BLOCKING: Initialized Dialog Context")
 
   -- The following caller ID values will trigger a replacement
+  -- We match the LHS of the SIP URI, and not the Calling Name in quotes
   local caller_ids = {"anonymous", "restricted", "unavailable"}
 
   -- Does our From header match one of our caller ID values?
