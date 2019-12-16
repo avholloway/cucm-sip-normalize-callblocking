@@ -25,6 +25,7 @@ function M.inbound_OPTIONS(msg)
 end
 
 function M.inbound_INVITE(msg)
+  -- The fix for blocking calls by calling number and SIP anonymous caller IDs
   anon_to_number()
 end
 
@@ -76,12 +77,15 @@ local function anon_to_number(msg)
   -- other random call.
   context.anonymous = true
 
-  -- And we'll store the replacement to the LHS
+  -- We'll store the replacement to the LHS
   context.replacement = "1111111111"
 
   -- The following Headers will be checked and replaced
   local headers = {"From", "Remote-Party-ID", "Contact",
     "P-Preferred-Identity", "P-Asserted-Identity"}
+
+  -- A place to store the original value of each of the headers we modfiy
+  context.headers = {}
 
   -- Check each header in our list one-by-one, to perform the fix on it
   for _, header in pairs(headers) do
@@ -98,7 +102,7 @@ local function anon_to_number(msg)
       trace.format("CALL_BLOCKING: Pre-Change: "..header..": "..value)
 
       -- Store the original value for later
-      context[header] = value
+      context.headers[header] = value
 
       -- Perform the swap to the new value
       value = value:gsub(":.+@", ":"..replacement.."@")
