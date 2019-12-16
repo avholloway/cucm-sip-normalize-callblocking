@@ -108,7 +108,7 @@ end
 function M.outbound_ANY_ANY(msg)
 end
 
-local function revert_it(msg)
+local function number_to_anon(msg)
   local context = msg:getContext()
   if not context then
     trace.format("CALL_BLOCKING: Exiting due to missing context for dialog")
