@@ -17,7 +17,7 @@
   sip:anonymous@1.1.1.1 becomes sip:1111111111@1.1.1.1
 
   On the way back to ITSP...
-  sip:anonymous@1.1.1.1 becomes sip:1111111111@1.1.1.1
+  sip:1111111111@1.1.1.1 becomes sip:anonymous@1.1.1.1
 
   Anthony Holloway (avholloway@gmail.com)
   December 2019
