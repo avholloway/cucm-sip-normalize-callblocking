@@ -85,8 +85,34 @@ function M.inbound_INVITE(msg)
       msg:modifyHeader(header, value)
       trace.format("CALL_BLOCKING: Post-Change: "..header..": "..value)
     else
-      trace.format("CALL_BLOCKING: No-Change: "..header..": "..value)
+      trace.format("CALL_BLOCKING: No Change: "..header..": "..value)
     end
+  end
+
+end
+
+function M.inbound_ANY(msg)
+end
+
+function M.outbound_ANY(msg)
+end
+
+function M.inbound_ANY_ANY(msg)
+end
+
+function M.outbound_ANY_ANY(msg)
+end
+
+local function revert_it(msg)
+  local context = msg:getContext()
+  if not context then
+    trace.format("CALL_BLOCKING: Exiting due to missing context for dialog")
+    return
+  end
+
+  if not context.anonymous then
+    trace.format("CALL_BLOCKING: Exiting due to context.anonymous missing")
+    return
   end
 
 end
