@@ -69,18 +69,18 @@ function M.inbound_INVITE(msg)
     -- Try to grab this header, if its not present, just move to the next header
     local value = msg:getHeader(header)
     if not value then break end
-    trace.format("CALL_BLOCKING: Pre-Change: "..header..": "..value)
 
     -- If this header contains one of our caller ID keywords
     if find_one(value, caller_ids) then
+      trace.format("CALL_BLOCKING: Pre-Change: "..header..": "..value)
 
-        -- Store the original value for later
-        context[header] = value
+      -- Store the original value for later
+      context[header] = value
 
-        -- Perform the swap to the new value
-        value = value:gsub(":.+@", ":"..replacement.."@")
-        msg:modifyHeader(header, value)
-        trace.format("CALL_BLOCKING: Post-Change: "..header..": "..value)
+      -- Perform the swap to the new value
+      value = value:gsub(":.+@", ":"..replacement.."@")
+      msg:modifyHeader(header, value)
+      trace.format("CALL_BLOCKING: Post-Change: "..header..": "..value)
     end
   end
 
