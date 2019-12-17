@@ -48,7 +48,7 @@ end
 -- Message Handlers: Outbound Requests -----------------------------------------
 
 function M.outbound_INVITE(msg)
-  --ITSP will reject 911 calls containing a Diversion header; let's remove it
+  -- ITSP will reject 911 calls containing a Diversion header; let's remove it
   remove_header_if(msg, "Diversion", "sip:911@")
 
   -- The reversion to our fix for blocking SIP anonymous caller caller_ids
@@ -162,8 +162,13 @@ local function number_to_anon(msg)
 
   -- We'll iterate over the headers we modified, reverting them back
   for header, value in context.headers do
-    trace.format("CALL_BLOCKING: NUM2ANON: "..header..": Reverting to: "..value)
+
+    -- If the current header is From, we need to check if this is also a reINVITE
+    -- We need to modify the To header, since their usually flipped
+    if header == "From" and msg:isReInviteRequest() then header = "To" end
+
     msg:modifyHeader(header, value)
+    trace.format("CALL_BLOCKING: NUM2ANON: "..header..": Reverting to: "..value)
   end
 
 end
