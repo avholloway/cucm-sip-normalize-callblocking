@@ -28,12 +28,26 @@ M = {}
 -- Enable tracing if you are troubleshooting
 trace.enable()
 
+--[[
+
+Message Handlers
+================================================================================
+
+--]]
 function M.inbound_INVITE(msg)
   -- The fix for blocking calls by calling number and SIP anonymous caller IDs
   anon_to_number()
 end
 
 function M.outbound_ANY(msg)
+  -- The reversion to our fix for blocking SIP anonymous caller caller_ids
+  number_to_anon()
+end
+
+function M.outbound_INVITE(msg)
+  --ITSP will reject 911 calls containing a Diversion header; let's remove it
+  remove_header_if(msg, "Diversion", "sip:911@")
+
   -- The reversion to our fix for blocking SIP anonymous caller caller_ids
   number_to_anon()
 end
