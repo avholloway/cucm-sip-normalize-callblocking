@@ -163,8 +163,8 @@ local function number_to_anon(msg)
   -- We'll iterate over the headers we modified, reverting them back
   for header, value in context.headers do
 
-    -- If the current header is From, we need to check if this is also a reINVITE
-    -- We need to modify the To header, since their usually flipped
+    -- If the current header is From, check if this message is a reINVITE
+    -- If so, we need to modify the To header, since they're usually flipped
     if header == "From" and msg:isReInviteRequest() then header = "To" end
 
     msg:modifyHeader(header, value)
