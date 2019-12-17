@@ -47,14 +47,6 @@ end
 
 -- Message Handlers: Outbound Requests -----------------------------------------
 
-function M.outbound_INVITE(msg)
-  -- ITSP will reject 911 calls containing a Diversion header; let's remove it
-  remove_header_if(msg, "Diversion", "sip:911@")
-
-  -- The reversion to our fix for blocking SIP anonymous caller caller_ids
-  number_to_anon()
-end
-
 function M.outbound_ANY(msg)
   -- The reversion to our fix for blocking SIP anonymous caller caller_ids
   number_to_anon()
@@ -179,19 +171,6 @@ local function find_one(s, t)
   for _, p in pairs(t) do
     if s:lower():find(p) then return true end
   end
-  return false
-end
-
--- Takes the message object, the header in question, and will remove it from
--- the message if it matches the search pattern, otherwise, it does nothing
-local function remove_header_if(msg, header, needle)
-  local haystack = msg:getHeader(header)
-  if haystack then
-    if haystack:lower():find(needle) then
-      msg:removeHeader(header)
-      return true
-		end
-	end
   return false
 end
 
