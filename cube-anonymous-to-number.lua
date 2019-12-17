@@ -1,4 +1,8 @@
 --[[
+  Title:  CUBE Anonymous to Number SIP Normalization Script for CUCM
+  By:     Anthony Holloway (avholloway@gmail.com)
+  Date:   December 2019
+
   If we are performing call blocking based on calling number, and we receive
   an INVITE from anonymous, it will be blocked because, CUCM will not be able
   to use our blank nor ! XLATEs we use to permit non-blacklisted callers.
@@ -19,12 +23,15 @@
   On the way back to ITSP...
   sip:1111111111@1.1.1.1 becomes sip:anonymous@1.1.1.1
 
-  Anthony Holloway (avholloway@gmail.com)
-  December 2019
 --]]
 
+-- Start of Script: Global Settings-- ------------------------------------------
+
+-- Initialize our SIP Normalization M table
 M = {}
 
+-- Turn on tracing (writes "//SIPLua/Script/trace_output:" to SDL)
+-- Must also be enabled on SIP Trunk to actually write to logs
 trace.enable()
 
 -- Message Handlers: Inbound Requests ------------------------------------------
