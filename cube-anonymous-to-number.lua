@@ -25,19 +25,20 @@
 
 M = {}
 
--- Enable tracing if you are troubleshooting
 trace.enable()
 
---[[
+-- Message Handlers: Inbound Requests ------------------------------------------
 
-Message Handlers
-================================================================================
-
---]]
 function M.inbound_INVITE(msg)
   -- The fix for blocking calls by calling number and SIP anonymous caller IDs
   anon_to_number()
 end
+
+-- Message Handlers: Inbound Responses -----------------------------------------
+
+-- None
+
+-- Message Handlers: Outbound Requests -----------------------------------------
 
 function M.outbound_ANY(msg)
   -- The reversion to our fix for blocking SIP anonymous caller caller_ids
@@ -52,10 +53,14 @@ function M.outbound_INVITE(msg)
   number_to_anon()
 end
 
+-- Message Handlers: Outbound Responses ----------------------------------------
+
 function M.outbound_ANY_ANY(msg)
   -- The reversion to our fix for blocking SIP anonymous caller caller_ids
   number_to_anon()
 end
+
+-- User Defined Functions ------------------------------------------------------
 
 local function anon_to_number(msg)
   trace.format("CALL_BLOCKING: ANON2NUM: Inspecting From: "..from_header)
