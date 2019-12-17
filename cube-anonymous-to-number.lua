@@ -148,3 +148,16 @@ local function find_one(s, t)
 end
 
 return M
+
+-- Takes the message object, the header in question, and will remove it from 
+-- the message if it matches the search pattern, otherwise, it does nothing
+local function remove_header_if(msg, header, needle)
+  local haystack = msg:getHeader(header)
+  if haystack then
+    if haystack:lower():find(needle) then
+      msg:removeHeader(header)
+      return true
+		end
+	end
+  return false
+end
