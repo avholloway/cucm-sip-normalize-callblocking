@@ -69,6 +69,8 @@ end
 
 -- User Defined Functions ------------------------------------------------------
 
+-- Finds SIP Calls with Anonymous caller IDs and converts them to an arbitrary
+-- number so that CUCM can match our ! XLATE in our call blocking construct
 local function anon_to_number(msg)
   trace.format("CALL_BLOCKING: ANON2NUM: Inspecting From: "..from_header)
 
@@ -142,6 +144,8 @@ local function anon_to_number(msg)
 
 end
 
+-- Finds SIP messages where we have previously monkeyed with the Anonymous
+-- caller ID and put it back to how it was, so the ITSP is nonethewiser
 local function number_to_anon(msg)
   -- We'll use the dialog context to read a flag for calls we've modified
   local context = msg:getContext()
