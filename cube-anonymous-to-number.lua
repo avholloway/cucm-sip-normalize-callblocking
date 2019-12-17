@@ -25,7 +25,7 @@
 
 --]]
 
--- Start of Script: Global Settings-- ------------------------------------------
+-- Start of Script: Global Settings --------------------------------------------
 
 -- Initialize our SIP Normalization M table
 M = {}
@@ -47,15 +47,15 @@ end
 
 -- Message Handlers: Outbound Requests -----------------------------------------
 
-function M.outbound_ANY(msg)
-  -- The reversion to our fix for blocking SIP anonymous caller caller_ids
-  number_to_anon()
-end
-
 function M.outbound_INVITE(msg)
   --ITSP will reject 911 calls containing a Diversion header; let's remove it
   remove_header_if(msg, "Diversion", "sip:911@")
 
+  -- The reversion to our fix for blocking SIP anonymous caller caller_ids
+  number_to_anon()
+end
+
+function M.outbound_ANY(msg)
   -- The reversion to our fix for blocking SIP anonymous caller caller_ids
   number_to_anon()
 end
