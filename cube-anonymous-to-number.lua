@@ -34,11 +34,6 @@ M = {}
 -- Must also be enabled on SIP Trunk to actually write to logs
 trace.enable()
 
--- User Defined Variables ------------------------------------------------------
-
--- The value you want to swap out with anonymous so CUCM can deal with it
-local replacement = "1111111111"
-
 -- Message Handlers: Inbound Requests ------------------------------------------
 
 function M.inbound_INVITE(msg)
@@ -107,7 +102,7 @@ local function anon_to_number(msg)
   context.anonymous = true
 
   -- We'll store the replacement to the LHS in the context too
-  context.replacement = replacement
+  context.replacement = "1111111111"
 
   -- The following Headers will be checked and replaced
   local headers = {"From", "Remote-Party-ID", "Contact",
