@@ -34,6 +34,11 @@ M = {}
 -- Must also be enabled on SIP Trunk to actually write to logs
 trace.enable()
 
+-- User Defined Variables ------------------------------------------------------
+
+-- The value you want to swap out with anonymous so CUCM can deal with it
+local replacement = "1111111111"
+
 -- Message Handlers: Inbound Requests ------------------------------------------
 
 function M.inbound_INVITE(msg)
@@ -64,6 +69,9 @@ end
 -- Finds SIP Calls with Anonymous caller IDs and converts them to an arbitrary
 -- number so that CUCM can match our ! XLATE in our call blocking construct
 local function anon_to_number(msg)
+  -- Only perform this action on initial INVITEs, no reINVITEs allowed
+  if not msg:isInitialInviterequest() then return end
+
   trace.format("CALL_BLOCKING: ANON2NUM: Inspecting From: "..from_header)
 
   -- The From header needs to be present and cannot contain a digit in LHS
@@ -98,8 +106,8 @@ local function anon_to_number(msg)
   -- other random call.
   context.anonymous = true
 
-  -- We'll store the replacement to the LHS
-  context.replacement = "1111111111"
+  -- We'll store the replacement to the LHS in the context too
+  context.replacement = replacement
 
   -- The following Headers will be checked and replaced
   local headers = {"From", "Remote-Party-ID", "Contact",
@@ -141,14 +149,8 @@ end
 local function number_to_anon(msg)
   -- We'll use the dialog context to read a flag for calls we've modified
   local context = msg:getContext()
-  if not context then
-    trace.format("CALL_BLOCKING: NUM2ANON: Exiting due to missing context for dialog")
-    return
-  end
-
-  -- If that flag is not present, just end
-  if not context.anonymous then
-    trace.format("CALL_BLOCKING: NUM2ANON: Exiting due to context.anonymous missing")
+  if not context or not context.anonymous then
+    trace.format("CALL_BLOCKING: NUM2ANON: Exiting due to this not being one of our messages")
     return
   end
 
