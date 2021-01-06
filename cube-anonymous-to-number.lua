@@ -119,8 +119,11 @@ local function anon_to_number(msg)
     if not value then
       trace.format("CALL_BLOCKING: ANON2NUM: Not Found: "..header..":")
     else
+      
       -- If this header contains one of our caller ID keywords
-      if find_one(":"..value.."@", caller_ids) then
+      if not find_one(":"..value.."@", caller_ids) then
+        trace.format("CALL_BLOCKING: ANON2NUM: No Change: "..header..": "..value)
+      else
         trace.format("CALL_BLOCKING: ANON2NUM: Pre-Change: "..header..": "..value)
 
         -- Store the original value for later
@@ -130,10 +133,10 @@ local function anon_to_number(msg)
         value = value:gsub(":.+@", ":"..replacement.."@")
         msg:modifyHeader(header, value)
         trace.format("CALL_BLOCKING: ANON2NUM: Post-Change: "..header..": "..value)
-      else
-        trace.format("CALL_BLOCKING: ANON2NUM: No Change: "..header..": "..value)
       end
+      
     end
+    
   end
 
 end
